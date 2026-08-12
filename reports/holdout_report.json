@@ -1,0 +1,47 @@
+{
+  "seed": 42,
+  "rows": 2400,
+  "overall": {
+    "roc_auc": 0.6433580444800642,
+    "brier_score": 0.08504315061861072,
+    "rows": 480.0
+  },
+  "thresholds": [
+    {
+      "threshold": 0.05,
+      "positive_rate": 0.9895833333333334,
+      "true_positive_rate": 0.0968421052631579
+    },
+    {
+      "threshold": 0.12,
+      "positive_rate": 0.21458333333333332,
+      "true_positive_rate": 0.1650485436893204
+    },
+    {
+      "threshold": 0.2,
+      "positive_rate": 0.09166666666666666,
+      "true_positive_rate": 0.20454545454545456
+    },
+    {
+      "threshold": 0.3,
+      "positive_rate": 0.0,
+      "true_positive_rate": 0.0
+    }
+  ],
+  "cohorts": [
+    {
+      "cohort": "stable_synthetic_cohort",
+      "rows": 350.0,
+      "mean_probability": 0.08863632574594466,
+      "observed_event_rate": 0.08,
+      "brier_score": 0.0734520140524099
+    },
+    {
+      "cohort": "volatile_synthetic_cohort",
+      "rows": 130.0,
+      "mean_probability": 0.13292191280498922,
+      "observed_event_rate": 0.13846153846153847,
+      "brier_score": 0.11625005675838215
+    }
+  ]
+}
