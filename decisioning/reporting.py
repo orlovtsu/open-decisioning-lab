@@ -163,6 +163,13 @@ def build_visual_report(
 
     save_plot("feature_effects.png", "Directional feature effects", plot_features)
 
+    def plot_quality(axis):
+        quality_counts = frame["data_quality_band"].value_counts().reindex(["low", "medium", "high"], fill_value=0)
+        axis.bar(quality_counts.index, quality_counts.values, color="#55a868")
+        axis.set(xlabel="Synthetic data-quality band", ylabel="Rows")
+
+    save_plot("data_quality.png", "Synthetic data-quality profile", plot_quality)
+
     def table(headers, rows):
         head = "".join(f"<th>{escape(str(header))}</th>" for header in headers)
         body = "".join("<tr>" + "".join(f"<td>{escape(str(value))}</td>" for value in row) + "</tr>" for row in rows)
@@ -214,4 +221,110 @@ td,th{{border:1px solid #ddd;padding:.45rem .7rem;text-align:left}} th{{backgrou
 <section><h2>7. Limitations and next steps</h2><ul><li>Synthetic distributions do not establish production validity.</li><li>Cohort analysis demonstrates a workflow, not fairness certification.</li><li>Production use would require representative data governance, drift monitoring, model registry, rollback, and review of policy costs.</li><li>The report is reproducible with <code>python scripts/generate_evaluation_report.py --seed {config.seed} --rows {config.rows}</code>.</li></ul></section>
 </body></html>"""
     (output_dir / "index.html").write_text(html, encoding="utf-8")
+
+    markdown = f"""# Open Decisioning Lab: Evaluation Report
+
+> Detailed, reproducible evaluation of a calibrated model on fully synthetic data.
+
+## Executive Summary
+
+This report separates ranking quality, probability quality, policy thresholds, cohort behavior, temporal stability, and feature effects. It is designed as a review artifact for a Data Scientist or ML Engineer, not as evidence of production performance.
+
+| Metric | Value |
+| --- | ---: |
+| ROC AUC | {metrics['roc_auc']:.6f} |
+| Average Precision | {metrics['average_precision']:.6f} |
+| Brier Score | {metrics['brier_score']:.6f} |
+| Holdout Rows | {int(metrics['holdout_rows'])} |
+| Holdout Event Rate | {metrics['holdout_event_rate']:.6f} |
+
+## Methodology
+
+- Data is generated with a fixed seed, temporal drift, seasonality, two artificial cohorts, data-quality bands, and a nonlinear interaction.
+- The estimator is trained on the first 60% of time.
+- Isotonic calibration uses the next 20%.
+- All reported metrics use the final 20% untouched holdout.
+- Diagnostic metadata is excluded from model features.
+- The model score and policy decision are evaluated as separate layers.
+
+## Model Quality
+
+### ROC Curve
+
+![ROC curve](roc_curve.png)
+
+### Precision-Recall Curve
+
+![Precision-recall curve](precision_recall_curve.png)
+
+ROC AUC measures ranking quality. Average Precision is more informative when the positive class is relatively uncommon because it focuses on precision-recall behavior.
+
+## Calibration
+
+![Calibration curve](calibration_curve.png)
+
+The Brier score evaluates probabilistic accuracy after calibration. Calibration is important when a score is used as a probability for threshold or cost analysis.
+
+## Threshold Analysis
+
+![Threshold trade-off](threshold_tradeoff.png)
+
+| Threshold | Selected Rate | Observed Event Rate | Precision | Recall |
+| ---: | ---: | ---: | ---: | ---: |
+"""
+    markdown += "\n".join(
+        f"| {row['threshold']:.2f} | {row['selected_rate']:.3f} | {row['observed_event_rate']:.3f} | {row['precision']:.3f} | {row['recall']:.3f} |"
+        for row in threshold_rows
+    )
+    markdown += f"""
+
+Thresholds change operating behavior without retraining the model. This illustrates why model performance and policy design should be reviewed independently.
+
+## Synthetic Cohorts
+
+![Cohort comparison](cohort_comparison.png)
+
+| Cohort | Rows | Mean Probability | Observed Event Rate | Brier Score |
+| --- | ---: | ---: | ---: | ---: |
+"""
+    markdown += "\n".join(
+        f"| {row['cohort']} | {row['rows']} | {row['mean_probability']:.4f} | {row['observed_event_rate']:.4f} | {row['brier_score']:.4f} |"
+        for row in cohort_rows
+    )
+    markdown += """
+
+These are artificial diagnostic cohorts, not protected groups and not a real-world fairness assessment.
+
+## Temporal Stability
+
+![Temporal stability](time_stability.png)
+
+The holdout is split into time quartiles to make temporal drift visible. In a production system this would be extended into rolling monitoring and alerting.
+
+## Data Quality
+
+![Data quality profile](data_quality.png)
+
+Evidence completeness is synthetic diagnostic metadata. The policy layer can route incomplete evidence to review instead of treating missingness as a favorable signal.
+
+## Feature Effects
+
+![Feature effects](feature_effects.png)
+
+The coefficient chart shows directional effects in the uncalibrated logistic score. These are not causal effects and should not be interpreted as individual explanations without separate stability validation.
+
+## Limitations
+
+- Synthetic distributions do not establish production validity.
+- Synthetic cohorts do not constitute fairness certification.
+- Production use would require representative data governance, drift monitoring, model registry, rollback, and review of policy costs.
+- The model is intentionally small and demonstrates workflow rather than state-of-the-art predictive performance.
+
+## Reproduce
+
+```powershell
+python scripts/generate_evaluation_report.py --seed {config.seed} --rows {config.rows}
+```
+"""
+    (output_dir / "REPORT.md").write_text(markdown, encoding="utf-8")
     return metrics

@@ -67,7 +67,7 @@ Synthetic data details are documented in [docs/synthetic-data.md](docs/synthetic
 python scripts/generate_evaluation_report.py --seed 42 --rows 2400
 ```
 
-The generated `reports/index.html` is the full analytical dossier: it includes methodology, ROC and precision-recall curves, calibration, threshold trade-offs, data-quality profile, synthetic cohort comparison, temporal stability, feature effects, limitations, and the underlying holdout metrics. Separate PNG files are generated for each major analysis.
+The generated `reports/index.html` is the full analytical dossier. GitHub-native readers can open [reports/REPORT.md](reports/REPORT.md), which embeds the charts directly in Markdown. The report includes methodology, ROC and precision-recall curves, calibration, threshold trade-offs, data-quality profile, synthetic cohort comparison, temporal stability, feature effects, limitations, and the underlying holdout metrics. Separate PNG files are generated for each major analysis.
 
 See [architecture notes](docs/architecture.md) and the [failure-mode register](docs/failure-modes.md) for design trade-offs and production extension points.
 
