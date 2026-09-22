@@ -3,7 +3,6 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
-
 FEATURES = [
     "monthly_income",
     "account_age_days",

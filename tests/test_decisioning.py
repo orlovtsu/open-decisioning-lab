@@ -6,7 +6,6 @@ from decisioning.api import app
 from decisioning.schemas import DecisionRequest
 from decisioning.service import evaluate
 
-
 client = TestClient(app)
 
 
@@ -50,7 +49,7 @@ def test_incomplete_evidence_routes_to_review():
 
 
 def test_policy_thresholds_are_ordered_and_explicit():
-    from decisioning.policy import PolicyConfig, apply_policy
+    from decisioning.policy import apply_policy
 
     assert apply_policy(0.10, identity_confidence=0.9, evidence_completeness=0.9).decision == "approve"
     assert apply_policy(0.15, identity_confidence=0.9, evidence_completeness=0.9).decision == "review"

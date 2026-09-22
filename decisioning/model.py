@@ -8,7 +8,6 @@ from sklearn.metrics import brier_score_loss, roc_auc_score
 
 from .synthetic import FEATURES, SyntheticConfig, make_dataset
 
-
 MODEL_VERSION = "synthetic-logistic-isotonic-1.0"
 
 

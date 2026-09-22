@@ -38,7 +38,7 @@ def build_visual_report(
     scored["actual"] = actual
     scored["raw_probability"] = raw
     scored["probability"] = probability
-    metrics = {
+    metrics: dict[str, float | str] = {
         "roc_auc": float(roc_auc_score(actual, raw)),
         "average_precision": float(average_precision_score(actual, raw)),
         "brier_score": float(brier_score_loss(actual, probability)),
@@ -276,7 +276,7 @@ The Brier score evaluates probabilistic accuracy after calibration. Calibration 
         f"| {row['threshold']:.2f} | {row['selected_rate']:.3f} | {row['observed_event_rate']:.3f} | {row['precision']:.3f} | {row['recall']:.3f} |"
         for row in threshold_rows
     )
-    markdown += f"""
+    markdown += """
 
 Thresholds change operating behavior without retraining the model. This illustrates why model performance and policy design should be reviewed independently.
 
